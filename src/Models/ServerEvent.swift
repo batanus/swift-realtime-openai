@@ -79,16 +79,16 @@ public enum ServerEvent: Sendable {
 		public let transcript: String
 	}
 
-	public struct ConversationItemInputAudioTranscriptionDeltaEvent: Decodable, Sendable {
-		/// The unique ID of the server event.
-		public let eventId: String
-		/// The ID of the user message item.
-		public let itemId: String
-		/// The index of the content part containing the audio.
-		public let contentIndex: Int
-		/// The transcribed delta text.
-		public let delta: String
-	}
+    public struct ConversationItemInputAudioTranscriptionDeltaEvent: Decodable, Sendable {
+        /// The unique ID of the server event.
+        public let eventId: String
+        /// The ID of the user message item.
+        public let itemId: String
+        /// The index of the content part containing the audio.
+        public let contentIndex: Int
+        /// The transcribed delta text.
+        public let delta: String
+    }
 
 	public struct ConversationItemInputAudioTranscriptionFailedEvent: Decodable, Sendable {
 		/// The unique ID of the server event.
@@ -334,8 +334,8 @@ public enum ServerEvent: Sendable {
 	case conversationItemCreated(ConversationItemCreatedEvent)
 	/// Returned when input audio transcription is enabled and a transcription succeeds.
 	case conversationItemInputAudioTranscriptionCompleted(ConversationItemInputAudioTranscriptionCompletedEvent)
-	/// Returned when input audio transcription is enabled and a transcription receives delta.
-	case conversationItemInputAudioTranscriptionDelta(ConversationItemInputAudioTranscriptionDeltaEvent)
+    /// Returned when input audio transcription is enabled and a transcription receives delta.
+    case conversationItemInputAudioTranscriptionDelta(ConversationItemInputAudioTranscriptionDeltaEvent)
 	/// Returned when input audio transcription is configured, and a transcription request for a user message failed.
 	case conversationItemInputAudioTranscriptionFailed(ConversationItemInputAudioTranscriptionFailedEvent)
 	/// Returned when an earlier assistant audio message item is truncated by the client.
@@ -397,8 +397,8 @@ extension ServerEvent: Identifiable {
 				return event.eventId
 			case let .conversationItemInputAudioTranscriptionCompleted(event):
 				return event.eventId
-			case let .conversationItemInputAudioTranscriptionDelta(event):
-				return event.eventId
+            case let .conversationItemInputAudioTranscriptionDelta(event):
+                return event.eventId
 			case let .conversationItemInputAudioTranscriptionFailed(event):
 				return event.eventId
 			case let .conversationItemTruncated(event):
@@ -469,8 +469,8 @@ extension ServerEvent: Decodable {
 				self = try .conversationItemCreated(ConversationItemCreatedEvent(from: decoder))
 			case "conversation.item.input_audio_transcription.completed":
 				self = try .conversationItemInputAudioTranscriptionCompleted(ConversationItemInputAudioTranscriptionCompletedEvent(from: decoder))
-			case "conversation.item.input_audio_transcription.delta":
-				self = try .conversationItemInputAudioTranscriptionDelta(ConversationItemInputAudioTranscriptionDeltaEvent(from: decoder))
+            case "conversation.item.input_audio_transcription.delta":
+                self = try .conversationItemInputAudioTranscriptionDelta(ConversationItemInputAudioTranscriptionDeltaEvent(from: decoder))
 			case "conversation.item.input_audio_transcription.failed":
 				self = try .conversationItemInputAudioTranscriptionFailed(ConversationItemInputAudioTranscriptionFailedEvent(from: decoder))
 			case "conversation.item.truncated":
