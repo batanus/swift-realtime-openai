@@ -530,7 +530,7 @@ extension Conversation {
 			Task { @MainActor in
 				guard let self else { return }
 
-				self.isPlaying = self.queuedSamples.isEmpty
+				self.isPlaying = !self.queuedSamples.isEmpty
 			}
 
 			self?._keepIsPlayingPropertyUpdated()
