@@ -515,7 +515,7 @@ extension Conversation {
 	private func _keepIsPlayingPropertyUpdated() {
 		withObservationTracking { _ = queuedSamples.isEmpty } onChange: {
 			Task { @MainActor in
-				self.isPlaying = self.queuedSamples.isEmpty
+				self.isPlaying = !self.queuedSamples.isEmpty
 			}
 
 			self._keepIsPlayingPropertyUpdated()
