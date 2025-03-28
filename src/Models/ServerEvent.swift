@@ -447,6 +447,7 @@ extension ServerEvent: Decodable {
 	public init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		let eventType = try container.decode(String.self, forKey: .type)
+        print("server event: \(eventType)")
 
 		switch eventType {
 			case "error":

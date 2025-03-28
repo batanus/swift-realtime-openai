@@ -18,7 +18,6 @@ public final class Conversation: Sendable {
 	private let playerNode = AVAudioPlayerNode()
 	private let queuedSamples = UnsafeMutableArray<String>()
 	private let apiConverter = UnsafeInteriorMutable<AVAudioConverter>()
-	private let userConverter = UnsafeInteriorMutable<AVAudioConverter>()
 	private let desiredFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 24000, channels: 1, interleaved: false)!
 
 	/// A stream of errors that occur during the conversation.
@@ -225,7 +224,6 @@ public extension Conversation {
         guard let converter = AVAudioConverter(from: audioEngine.inputNode.outputFormat(forBus: 0), to: desiredFormat) else {
             throw ConversationError.converterInitializationFailed
         }
-        userConverter.set(converter)
 
 		audioEngine.attach(playerNode)
 		audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: converter.inputFormat)
@@ -448,7 +446,8 @@ private extension Conversation {
             self.audioInputLevel = mapPowerToLevel(avgPower)
         }
 
-		guard let convertedBuffer = convertBuffer(buffer: buffer, using: userConverter.get()!, capacity: AVAudioFrameCount(Double(buffer.frameLength) * ratio)) else {
+        guard let converter = AVAudioConverter(from: audioEngine.inputNode.inputFormat(forBus: 0), to: desiredFormat),
+              let convertedBuffer = convertBuffer(buffer: buffer, using: converter, capacity: AVAudioFrameCount(Double(buffer.frameLength) * ratio)) else {
 			print("Buffer conversion failed.")
 			return
 		}
