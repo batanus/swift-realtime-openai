@@ -7,6 +7,7 @@ enum RealtimeAPIError: Error {
 	case invalidMessage
 }
 
+@available(iOS 17.0, *)
 public final class RealtimeAPI: NSObject, Sendable {
 	@MainActor public var onDisconnect: (@Sendable () -> Void)? {
 		get { connector.onDisconnect }
@@ -32,6 +33,8 @@ public final class RealtimeAPI: NSObject, Sendable {
 }
 
 /// Helper methods for connecting to the OpenAI Realtime API.
+
+@available(iOS 17.0, *)
 extension RealtimeAPI {
 	/// Connect to the OpenAI WebSocket Realtime API with the given request.
 	static func webSocket(connectingTo request: URLRequest) -> RealtimeAPI {
