@@ -34,7 +34,7 @@ public final class WebSocketConnector: NSObject, Connector, Sendable {
 	}
 
 	deinit {
-		task.cancel(with: .goingAway, reason: nil)
+        cancelTask()
 		stream.finish()
 		onDisconnect?()
 	}
@@ -48,6 +48,10 @@ public final class WebSocketConnector: NSObject, Connector, Sendable {
 		onDisconnect = action
 	}
 
+    private func cancelTask() {
+        task.cancel(with: .goingAway, reason: nil)
+    }
+
 	private func receiveMessage() {
 		task.receive { [weak self] result in
 			guard let self else { return }
@@ -55,6 +59,7 @@ public final class WebSocketConnector: NSObject, Connector, Sendable {
 			switch result {
 				case let .failure(error):
 					self.stream.yield(error: error)
+                    self.cancelTask()
 				case let .success(message):
 					switch message {
 						case let .string(text):
