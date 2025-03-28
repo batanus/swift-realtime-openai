@@ -23,4 +23,17 @@ extension AVAudioPCMBuffer {
 
 		return buffer
 	}
+
+    func averagePower() -> Float {
+        guard let channelData = floatChannelData?[0] else { return -100 }
+        let count = Int(frameLength)
+
+        let channelDataArray = Array(UnsafeBufferPointer(start: channelData, count: count))
+
+        let sumOfSquares = channelDataArray.map { $0 * $0 }.reduce(0, +)
+        let rms = sqrt(sumOfSquares / Float(count))
+
+        let db = 20 * log10(rms)
+        return db.isFinite ? db : -100
+    }
 }

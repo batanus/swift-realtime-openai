@@ -49,6 +49,10 @@ public final class Conversation: @unchecked Sendable {
 	/// Whether the model is currently speaking.
 	@MainActor public private(set) var isPlaying: Bool = false
 
+    @MainActor public private(set) var audioInputLevel: Float = 0
+
+    @MainActor public private(set) var audioOutputLevel: Float = 0
+
 	/// A list of messages in the conversation.
 	/// Note that this doesn't include function call events. To get a complete list, use `entries`.
 	@MainActor public var messages: [Item.Message] {
@@ -190,6 +194,9 @@ public extension Conversation {
 			audioEngine.inputNode.installTap(onBus: 0, bufferSize: 4096, format: audioEngine.inputNode.outputFormat(forBus: 0)) { [weak self] buffer, _ in
 				self?.processAudioBufferFromUser(buffer: buffer)
 			}
+            self.audioEngine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: self.audioEngine.mainMixerNode.outputFormat(forBus: 0)) { [weak self] buffer, _ in
+                self?.processAudioBufferFromAssistant(buffer: buffer)
+            }
 		}
 
 		isListening = true
@@ -283,6 +290,7 @@ public extension Conversation {
 		guard audioEngine.attachedNodes.contains(playerNode) else { return }
 
 		audioEngine.inputNode.removeTap(onBus: 0)
+        audioEngine.mainMixerNode.removeTap(onBus: 0)
 		audioEngine.stop()
 		audioEngine.disconnectNodeInput(playerNode)
 		audioEngine.disconnectNodeOutput(playerNode)
@@ -447,6 +455,10 @@ private extension Conversation {
 
 	private func processAudioBufferFromUser(buffer: AVAudioPCMBuffer) {
 		let ratio = desiredFormat.sampleRate / buffer.format.sampleRate
+        let avgPower = buffer.averagePower()
+        Task { @MainActor in
+            self.audioInputLevel = mapPowerToLevel(avgPower)
+        }
 
 		guard let convertedBuffer = convertBuffer(buffer: buffer, using: userConverter.get()!, capacity: AVAudioFrameCount(Double(buffer.frameLength) * ratio)) else {
 			print("Buffer conversion failed.")
@@ -460,6 +472,17 @@ private extension Conversation {
 			try await send(audioDelta: audioData)
 		}
 	}
+
+    private func processAudioBufferFromAssistant(buffer: AVAudioPCMBuffer) {
+        let power = buffer.averagePower()
+        let level = mapPowerToLevel(power)
+        Task { @MainActor in self.audioOutputLevel = level }
+    }
+
+    private func mapPowerToLevel(_ power: Float) -> Float {
+        let threshold: Float = 44
+        return min(max(1 + power / threshold, 0), 1)
+    }
 
 	private func convertBuffer(buffer: AVAudioPCMBuffer, using converter: AVAudioConverter, capacity: AVAudioFrameCount) -> AVAudioPCMBuffer? {
 		if buffer.format == converter.outputFormat {
