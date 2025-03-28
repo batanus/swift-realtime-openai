@@ -5,9 +5,9 @@ import PackageDescription
 let package = Package(
 	name: "OpenAIRealtime",
 	platforms: [
-		.iOS(.v17),
-		.tvOS(.v17),
-		.macOS(.v14),
+		.iOS(.v15),
+		.tvOS(.v15),
+		.macOS(.v13),
 		.watchOS(.v10),
 		.visionOS(.v1),
 		.macCatalyst(.v17),
