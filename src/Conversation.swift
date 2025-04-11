@@ -7,7 +7,6 @@ public enum ConversationError: Error {
 }
 
 @available(iOS 17.0, *)
-@Observable
 public final class Conversation: @unchecked Sendable {
 	private let client: RealtimeAPI
 	@MainActor private var isInterrupting: Bool = false
@@ -24,33 +23,33 @@ public final class Conversation: @unchecked Sendable {
 	public let errors: AsyncStream<ServerError>
 
 	/// The unique ID of the conversation.
-	@MainActor public private(set) var id: String?
+	@Published @MainActor public private(set) var id: String?
 
 	/// The current session for this conversation.
-	@MainActor public private(set) var session: Session?
+    @Published @MainActor public private(set) var session: Session?
 
 	/// A list of items in the conversation.
-	@MainActor public private(set) var entries: [Item] = []
+    @Published @MainActor public private(set) var entries: [Item] = []
 
 	/// Whether the conversation is currently connected to the server.
-	@MainActor public private(set) var connected: Bool = false
+    @Published @MainActor public private(set) var connected: Bool = false
 
 	/// Whether the conversation is currently listening to the user's microphone.
-	@MainActor public private(set) var isListening: Bool = false
+    @Published @MainActor public private(set) var isListening: Bool = false
 
 	/// Whether this conversation is currently handling voice input and output.
-	@MainActor public private(set) var handlingVoice: Bool = false
+    @Published @MainActor public private(set) var handlingVoice: Bool = false
 
 	/// Whether the user is currently speaking.
 	/// This only works when using the server's voice detection.
-	@MainActor public private(set) var isUserSpeaking: Bool = false
+    @Published @MainActor public private(set) var isUserSpeaking: Bool = false
 
 	/// Whether the model is currently speaking.
-	@MainActor public private(set) var isPlaying: Bool = false
+    @Published @MainActor public private(set) var isPlaying: Bool = false
 
-    @MainActor public private(set) var audioInputLevel: Float = 0
+    @Published @MainActor public private(set) var audioInputLevel: Float = 0
 
-    @MainActor public private(set) var audioOutputLevel: Float = 0
+    @Published @MainActor public private(set) var audioOutputLevel: Float = 0
 
 	/// A list of messages in the conversation.
 	/// Note that this doesn't include function call events. To get a complete list, use `entries`.
