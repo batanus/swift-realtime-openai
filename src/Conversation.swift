@@ -186,7 +186,7 @@ public extension Conversation {
 	/// This will automatically call `startHandlingVoice` if it hasn't been called yet.
 	/// > Warning: Make sure to handle the case where the user denies microphone access.
 	@MainActor func startListening() throws {
-		guard !isListening else { return }
+		if isListening { return }
 		if !handlingVoice { try startHandlingVoice() }
 
 		Task.detached { [audioEngine] in
@@ -212,12 +212,11 @@ public extension Conversation {
 
 	/// Handle the playback of audio responses from the model.
 	@MainActor func startHandlingVoice() throws {
-		guard !handlingVoice else { return }
+		if handlingVoice { return }
 
-		guard let converter = AVAudioConverter(from: audioEngine.inputNode.outputFormat(forBus: 0), to: desiredFormat) else {
-			throw ConversationError.converterInitializationFailed
-		}
-		userConverter.set(converter)
+        guard let converter = AVAudioConverter(from: audioEngine.inputNode.outputFormat(forBus: 0), to: desiredFormat) else {
+            throw ConversationError.converterInitializationFailed
+        }
 
 		audioEngine.attach(playerNode)
 		audioEngine.connect(playerNode, to: audioEngine.mainMixerNode, format: converter.inputFormat)
@@ -250,7 +249,7 @@ public extension Conversation {
 	/// Interrupt the model's response if it's currently playing.
 	/// This lets the model know that the user didn't hear the full response.
 	@MainActor func interruptSpeech() {
-		guard !isInterrupting else { return }
+		if isInterrupting { return }
 		isInterrupting = true
 
 		if isPlaying,
